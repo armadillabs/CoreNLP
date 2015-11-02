@@ -1,6 +1,6 @@
 package edu.stanford.nlp.pipeline;
 
-import edu.stanford.nlp.dcoref.CorefCoreAnnotations;
+import edu.stanford.nlp.hcoref.CorefCoreAnnotations;
 import edu.stanford.nlp.ie.NumberNormalizer;
 import edu.stanford.nlp.ie.machinereading.structure.MachineReadingAnnotations;
 import edu.stanford.nlp.ling.CoreAnnotations;
@@ -257,7 +257,7 @@ public class ProtobufAnnotationSerializerSlowITest {
 
   @Test
   public void testOpenie() {
-    testAnnotators("tokenize,ssplit,pos,depparse,natlog,openie");
+    testAnnotators("tokenize,ssplit,pos,lemma,depparse,natlog,openie");
   }
 
   @Test
@@ -406,6 +406,11 @@ public class ProtobufAnnotationSerializerSlowITest {
   }
 
   @Test
+  public void testUDFeats() {
+    testAnnotators("tokenize,ssplit,pos,depparse,udfeats");
+  }
+
+  @Test
   public void testSerializeSSplitTokensRegression() {
     testAnnotators("tokenize,ssplit");
   }
@@ -413,6 +418,12 @@ public class ProtobufAnnotationSerializerSlowITest {
   @Test
   public void testSerializeNatLog() {
     testAnnotators("tokenize,ssplit,pos,lemma,depparse,natlog");
+  }
+
+
+  @Test
+  public void testGender() {
+    testAnnotators("tokenize,ssplit,pos,gender");
   }
 
   /**
@@ -457,7 +468,7 @@ public class ProtobufAnnotationSerializerSlowITest {
       if (!annotatorsToConsider.isEmpty()) { continue; }  // continue if we couldn't add all the annotators
 
       // Create pipeline
-      if (!annotators.contains("hcoref") && !annotators.contains("entitymentions")) {  // TODO(gabor) eventually, don't ignore this!
+      if (!annotators.contains("dcoref") && !annotators.contains("entitymentions")) {  // TODO(gabor) eventually, don't ignore entitymentions!
         System.err.println(">>TESTING " + StringUtils.join(annotators, ","));
         testAnnotators(StringUtils.join(annotators, ","));
       }

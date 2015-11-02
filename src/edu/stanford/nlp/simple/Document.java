@@ -1,8 +1,8 @@
 package edu.stanford.nlp.simple;
 
-import edu.stanford.nlp.dcoref.CorefChain;
-import edu.stanford.nlp.dcoref.CorefCoreAnnotations;
-import edu.stanford.nlp.dcoref.Dictionaries;
+import edu.stanford.nlp.hcoref.CorefCoreAnnotations;
+import edu.stanford.nlp.hcoref.data.CorefChain;
+import edu.stanford.nlp.hcoref.data.Dictionaries;
 import edu.stanford.nlp.ie.util.RelationTriple;
 import edu.stanford.nlp.io.RuntimeIOException;
 import edu.stanford.nlp.ling.CoreAnnotations;
@@ -163,7 +163,22 @@ public class Document {
   };
 
   /**
-   * The default {@link edu.stanford.nlp.pipeline.DeterministicCorefAnnotator} implementation
+   * The default {@link edu.stanford.nlp.pipeline.MentionAnnotator} implementation
+   */
+  private static Supplier<Annotator> defaultMention = new Supplier<Annotator>() {
+    Annotator impl = null;
+
+    @Override
+    public synchronized Annotator get() {
+      if (impl == null) {
+        impl = AnnotatorFactories.mention(EMPTY_PROPS, backend).create();
+      }
+      return impl;
+    }
+  };
+
+  /**
+   * The default {@link edu.stanford.nlp.pipeline.CorefAnnotator} implementation
    */
   private static Supplier<Annotator> defaultCoref = new Supplier<Annotator>() {
     Annotator impl = null;
@@ -509,10 +524,13 @@ public class Document {
     synchronized (this.impl) {
       if (impl.getCorefChainCount() == 0) {
         // Run prerequisites
-        this.runNER(props).runParse(props);
+        this.runLemma(props).runNER(props).runDepparse(props);  // default is dependency mention annotator
+        // Run mention
+        Annotator mention = props == EMPTY_PROPS ? defaultMention.get() : AnnotatorFactories.mention(props, backend).create();
         // Run coref
         Annotator coref = props == EMPTY_PROPS ? defaultCoref.get() : AnnotatorFactories.coref(props, backend).create();
         Annotation ann = asAnnotation();
+        mention.annotate(ann);
         coref.annotate(ann);
         // Convert to proto
         synchronized (serializer) {

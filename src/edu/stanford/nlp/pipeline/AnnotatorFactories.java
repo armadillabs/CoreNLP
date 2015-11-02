@@ -485,6 +485,25 @@ public class AnnotatorFactories {
   }
 
   //
+  // Mentions
+  //
+
+  public static AnnotatorFactory mention(Properties properties, final AnnotatorImplementations annotatorImplementation) {
+    return new AnnotatorFactory(properties, annotatorImplementation) {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public Annotator create() { return annotatorImplementation.mention(properties); }
+
+      @Override
+      public String additionalSignature() {
+          // TO DO: implement this properly
+          return "";
+      }
+    };
+  }
+
+  //
   // Coreference resolution
   //
   public static AnnotatorFactory coref(Properties properties, final AnnotatorImplementations annotatorImplementation) {
@@ -494,6 +513,23 @@ public class AnnotatorFactories {
       @Override
       public Annotator create() {
         return annotatorImplementation.coref(properties);
+      }
+
+      @Override
+      public String additionalSignature() {
+        // keep track of all relevant properties for this annotator here!
+        return DeterministicCorefAnnotator.signature(properties);
+      }
+    };
+  }
+
+  public static AnnotatorFactory dcoref(Properties properties, final AnnotatorImplementations annotatorImplementation) {
+    return new AnnotatorFactory(properties, annotatorImplementation) {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public Annotator create() {
+        return annotatorImplementation.dcoref(properties);
       }
 
       @Override
@@ -631,6 +667,26 @@ public class AnnotatorFactories {
       protected String additionalSignature() {
         return "";
       }
+    };
+  }
+
+
+  //
+  // UD Features Extractor
+  //
+  public static AnnotatorFactory udfeats(Properties properties, final AnnotatorImplementations annotatorImpl) {
+    return new AnnotatorFactory(properties, annotatorImpl) {
+      private static final long serialVersionUID = -2525567112379296672L;
+
+      @Override
+      public Annotator create() {
+        return annotatorImpl.udfeats(properties);
+      }
+
+      @Override
+      protected String additionalSignature() {
+                return "";
+            }
     };
   }
 
